@@ -1,11 +1,6 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
-void main() {
-  runApp(MyApp());
-}
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -13,8 +8,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        // This is the theme of your application.
+        //
+        // Try running your application with "flutter run". You'll see the
+        // application has a blue toolbar. Then, without quitting the app, try
+        // changing the primarySwatch below to Colors.green and then invoke
+        // "hot reload" (press "r" in the console where you ran "flutter run",
+        // or simply save your changes to "hot reload" in a Flutter IDE).
+        // Notice that the counter didn't reset back to zero; the application
+        // is not restarted.
         primarySwatch: Colors.blue,
       ),
       home: MyHomePage(title: 'Flutter Demo Home Page'),
@@ -25,6 +28,15 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
 
+  // This widget is the home page of your application. It is stateful, meaning
+  // that it has a State object (defined below) that contains fields that affect
+  // how it looks.
+
+  // This class is the configuration for the state. It holds the values (in this
+  // case the title) provided by the parent (in this case the App widget) and
+  // used by the build method of the State. Fields in a Widget subclass are
+  // always marked "final".
+
   final String title;
 
   @override
@@ -32,182 +44,61 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  @override
-  void initState() {
-    super.initState();
-    apiData();
-  }
-
-  var res;
-  var responselenth;
-  void apiData() async {
-    http.Response response =
-        await http.get('https://api.thecatapi.com/v1/breeds?page=1&limit=5');
-
-    print(response.body);
-
-    if (response.statusCode == 200) {
-      res = response.body;
-      setState(() {
-        responselenth = json.decode(res);
-        print(responselenth.length);
-      });
-    } else {
-      print(response.statusCode);
-    }
-  }
-
-  bool isLoading = false;
-
-  Future _loadData() async {
-    // perform fetching data delay
-    await new Future.delayed(new Duration(seconds: 2));
-
-    print("load more");
-    // update data and loading status
-    setState(() {
-      apiData();
-
-      isLoading = false;
-    });
-  }
-
+  var _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
-    if (res == null) {
-      return Center(
-        child: CircularProgressIndicator(),
-      );
-    }
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.teal,
-        title: Text(
-          'CAT NAME',
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        centerTitle: true,
+        title: Text(widget.title),
       ),
-      backgroundColor: Color(0xfff5f5e6),
-      body: Padding(
-        padding: const EdgeInsets.only(top: 8.0),
-        child: Column(
-          children: <Widget>[
-            // SingleChildScrollView(
-            //   scrollDirection: Axis.vertical,
-            //   child: Container(
-            //     height: 550,
-            //     width: double.infinity,
-            //     child: Expanded(
-            Expanded(
-                child: NotificationListener<ScrollNotification>(
-              onNotification: (ScrollNotification scrollInfo) {
-                if (!isLoading &&
-                    scrollInfo.metrics.pixels ==
-                        scrollInfo.metrics.maxScrollExtent) {
-                  _loadData();
-                  // start loading data
-                  setState(() {
-                    isLoading = true;
-                  });
-                }
-              },
-              child: ListView.builder(
-                  itemCount: responselenth.length,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        children: [
-                          Card(
-                            child: Container(
-                              height: 150,
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10.0)),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Container(
-                                    height: double.infinity,
-                                    width: 100,
-                                    child: Image.network(
-                                      '${json.decode(res)[index]['image']['url']}',
-                                      fit: BoxFit.fill,
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  Container(
-                                    height: double.infinity,
-                                    width: 180,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                        SizedBox(
-                                          height: 10.0,
-                                        ),
-                                        Text(
-                                          '${json.decode(res)[index]['name']}',
-                                          textScaleFactor: 2,
-                                          style: TextStyle(
-                                            color: Colors.teal,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          height: 3,
-                                        ),
-                                        Container(
-                                          height: 52.0,
-                                          width: double.infinity,
-                                          child: Text(
-                                            '${json.decode(res)[index]['description']}',
-                                            overflow: TextOverflow.fade,
-                                            textAlign: TextAlign.start,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    height: 30,
-                                    width: 50.0,
-                                    decoration: BoxDecoration(
-                                      color: Colors.green,
-                                      borderRadius: BorderRadius.only(
-                                        topRight: Radius.circular(5.0),
-                                      ),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                          '${json.decode(res)[index]['country_code']}'),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
-            )),
-            Container(
-              height: isLoading ? 50.0 : 0,
-              color: Colors.transparent,
-              child: Center(
-                child: new CircularProgressIndicator(),
-              ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  height: 80,
+                  width: double.infinity,
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                        labelText: 'Email Address',
+                        labelStyle: TextStyle(
+                          color: Colors.blue,
+                          fontSize: 16,
+                        )),
+                  ),
+                ),
+                Container(
+                  height: 80,
+                  width: double.infinity,
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                        labelText: 'Password',
+                        labelStyle: TextStyle(
+                          color: Colors.blue,
+                          fontSize: 16,
+                        )),
+                  ),
+                ),
+                Container(
+                  height: 80,
+                  width: double.infinity,
+                  child: Center(
+                    child: RaisedButton.icon(
+                      onPressed: () {},
+                      elevation: 10.0,
+                      color: Colors.blue[100],
+                      icon: Icon(Icons.person),
+                      label: Text('Login'),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
